@@ -1,17 +1,15 @@
 package tug
 
 import (
-	"reflect"
 	"fmt"
-	"time"
-	"sync"
 	"github.com/go-redis/redis/v7"
+	"reflect"
+	"time"
 )
 
 const (
 	DbNumber = 15
 )
-var once sync.Once
 
 type Tug struct {
 	name string

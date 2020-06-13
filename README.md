@@ -2,14 +2,17 @@
 
 A redis based debugger to debug multi node applications in golang.
 
-## Usage
+## Basic Usage
 
     import "github.com/harshadptl/tug"
   
     ...
-  
-    t := tug.NewTug("appName", "localhost:1234", "password")
-    t.Pause(var1, map1, obj1)
+    // initialize in main func once in the project
+    tug.Init("appName", "localhost:1234", "password")
+    
+    ...
+    // pause with variables wherever you want a breakpoint
+    tug.Pause(var1, map1, obj1)
   
 
 use the cli to fetch logs and 
