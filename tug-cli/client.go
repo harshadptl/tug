@@ -16,14 +16,16 @@ const (
 func main() {
 	args := os.Args
 
-	if len(args) != 3 {
+	if len(args) != 2 && len(args) != 3 {
 		print("Usage: tug-cli [host] [password]\n")
 		return
 	}
 
 	host := os.Args[1]
-	password := os.Args[2]
-
+	password := ""
+	if len(args) == 3 {
+		password = os.Args[2]
+	}
 	cl := redis.NewClient(&redis.Options{
 		Addr:     host,
 		Password: password,
@@ -60,21 +62,23 @@ func main() {
 		inp, _ := reader.ReadString('\n')
 		inp = strings.ToLower(inp)
 
-		switch inp {
-		case "c":
+
+		if inp == "c\n" {
+
 			err := cl.Publish("tug", "go").Err()
 			if err != nil {
-				print("redis error: ", err.Error())
+				print("redis error: ", err.Error(), "\n")
 			}
-		case "f":
+		} else if inp == "f\n" {
+
 			err := cl.XDel("tug", ids...).Err()
 			if err != nil {
-				print("error flushing logs: ", err.Error())
+				print("error flushing logs: ", err.Error(), "\n")
 			}
-		case "q":
-			return
+		} else if inp == "q\n" {
+			goto done
 		}
 
-
 	}
+	done:
 }
