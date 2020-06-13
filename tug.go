@@ -49,7 +49,7 @@ func (t *Tug) Pause(vars ...interface{}) {
 
 	_, err := t.client.XAdd(xa).Result()
 	if err != nil {
-		panic("tug log failed")
+		panic("tug log failed: "+ err.Error())
 	}
 
 	block := t.client.Subscribe("tug").Channel()
