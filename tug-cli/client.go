@@ -55,7 +55,7 @@ func main() {
 
 		}
 		if len(ids) == 0 {
-			print("no logs...")
+			print("no logs...\n")
 		}
 
 		print("Press c/C to continue or f/F to flush logs or q/Q to quit:")
@@ -71,6 +71,10 @@ func main() {
 			}
 		} else if inp == "f\n" {
 
+			if len(ids) == 0 {
+				continue
+			}
+
 			err := cl.XDel("tug", ids...).Err()
 			if err != nil {
 				print("error flushing logs: ", err.Error(), "\n")
@@ -78,6 +82,7 @@ func main() {
 		} else if inp == "q\n" {
 			goto done
 		}
+		print()
 
 	}
 	done:
