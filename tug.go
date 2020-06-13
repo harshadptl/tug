@@ -43,10 +43,10 @@ func (t *Tug) Pause(vars ...interface{}) {
 	for i := range vars {
 		typ := reflect.ValueOf(vars[i]).Type()
 		key := fmt.Sprintf("%d:%s", i, reflect.ValueOf(typ))
+		val := fmt.Sprintf("%#v", vars[i])
 
-		xa.Values[key] = vars[i]
+		xa.Values[key] = val
 	}
-
 	_, err := t.client.XAdd(xa).Result()
 	if err != nil {
 		panic("tug log failed: "+ err.Error())
