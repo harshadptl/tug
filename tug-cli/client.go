@@ -45,25 +45,30 @@ func main() {
 		print()
 		for i := range val {
 			msg := val[i]
-			print("-------------------------------------------------")
+			print("\n\n\n")
+			print("Printing logs-------------------------------------------------")
 			print(msg.ID)
 			ids = append(ids, msg.ID)
 
 			for k, v := range msg.Values {
+				print("\n")
 				fmt.Printf("|%s\t\t|%v", k, v)
 			}
 
 		}
+		print("\n\n\n")
 		if len(ids) == 0 {
-			print("no logs...\n")
+			print("no logs... \n")
 		}
 
-		print("Press c/C to continue or f/F to flush logs or q/Q to quit:")
+		print("Press c to continue or f/F to flush logs or q/Q to quit:")
 		inp, _ := reader.ReadString('\n')
 		inp = strings.ToLower(inp)
 
 
 		if inp == "c\n" {
+
+			cl.PubSubChannels("tug").Result()
 
 			err := cl.Publish("tug", "go").Err()
 			if err != nil {
@@ -75,14 +80,13 @@ func main() {
 				continue
 			}
 
-			err := cl.XDel("tug", ids...).Err()
+			err := cl.Del("tug").Err()
 			if err != nil {
 				print("error flushing logs: ", err.Error(), "\n")
 			}
 		} else if inp == "q\n" {
 			goto done
 		}
-		print()
 
 	}
 	done:

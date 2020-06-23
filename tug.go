@@ -32,13 +32,15 @@ func NewTug(name, host, password string) *Tug {
 
 func (t *Tug) Pause(vars ...interface{}) {
 
-	id := fmt.Sprintf("%s: %s", t.name, time.Now().String())
+	id := fmt.Sprintf("%s:%s", t.name, time.Now().String())
 
 	xa := &redis.XAddArgs{
 		Stream: "tug",
 		ID:	id,
 		Values: map[string]interface{}{},
 	}
+
+	xa.Values["appName"] = t.name
 
 	for i := range vars {
 		typ := reflect.ValueOf(vars[i]).Type()
@@ -49,13 +51,45 @@ func (t *Tug) Pause(vars ...interface{}) {
 	}
 	_, err := t.client.XAdd(xa).Result()
 	if err != nil {
-		panic("tug log failed: "+ err.Error())
+		panic("tug log failed: " + err.Error())
+
 	}
 
-	block := t.client.Subscribe("tug").Channel()
-	<-block
+	sub := t.client.Subscribe("tug")
+	block := sub.Channel()
+	<- block
+	sub.Close()
 
 }
 
+func (t *Tug) Print(vars ...interface{}) {
+
+	id := fmt.Sprintf("%s:%s", t.name, time.Now().String())
+
+	xa := &redis.XAddArgs{
+		Stream: "tug",
+		ID:	id,
+		Values: map[string]interface{}{},
+	}
+
+	xa.Values["appName"] = t.name
+
+	for i := range vars {
+		typ := reflect.ValueOf(vars[i]).Type()
+		key := fmt.Sprintf("%d:%s", i, reflect.ValueOf(typ))
+		val := fmt.Sprintf("%#v", vars[i])
+
+		xa.Values[key] = val
+	}
+	_, err := t.client.XAdd(xa).Result()
+	if err != nil {
+		panic("tug log failed: " + err.Error())
+
+	}
+}
+
+func (t *Tug) Flush() {
+	t.client.Del("tug")
+}
 
 
