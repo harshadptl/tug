@@ -58,7 +58,7 @@ func (t *Tug) Pause(vars ...interface{}) {
 	sub := t.client.Subscribe("tug")
 	block := sub.Channel()
 	<- block
-	sub.Close()
+	sub.Unsubscribe("tug")
 
 }
 

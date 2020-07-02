@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-redis/redis/v7"
 )
@@ -35,50 +37,26 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for true {
-		val, err := cl.XRange("tug", "-", "+").Result()
-		if err != nil {
-			print("redis error: ", err.Error())
-		}
 
-		ids := []string{}
 
-		print()
-		for i := range val {
-			msg := val[i]
-			print("\n\n\n")
-			print("Printing logs-------------------------------------------------")
-			print(msg.ID)
-			ids = append(ids, msg.ID)
-
-			for k, v := range msg.Values {
-				print("\n")
-				fmt.Printf("|%s\t\t|%v", k, v)
-			}
-
-		}
-		print("\n\n\n")
-		if len(ids) == 0 {
-			print("no logs... \n")
-		}
-
-		print("Press c to continue or f/F to flush logs or q/Q to quit:")
+		print("Enter c to continue or f/F to flush logs or q/Q to quit:")
 		inp, _ := reader.ReadString('\n')
 		inp = strings.ToLower(inp)
 
 
 		if inp == "c\n" {
 
-			cl.PubSubChannels("tug").Result()
+			subscriptions, err := cl.PubSubNumSub("tug").Result()
+			if s, ok := subscriptions["tug"]; !ok || s < 1 {
+				print("no checkpoint...\n")
+				continue
+			}
 
-			err := cl.Publish("tug", "go").Err()
+			err = cl.Publish("tug", "go").Err()
 			if err != nil {
 				print("redis error: ", err.Error(), "\n")
 			}
 		} else if inp == "f\n" {
-
-			if len(ids) == 0 {
-				continue
-			}
 
 			err := cl.Del("tug").Err()
 			if err != nil {
@@ -86,6 +64,42 @@ func main() {
 			}
 		} else if inp == "q\n" {
 			goto done
+		} else {
+
+			val, err := cl.XRange("tug", "-", "+").Result()
+			if err != nil {
+				print("redis error: ", err.Error())
+				print("\n")
+			}
+
+			ids := []string{}
+
+			print()
+			for i := range val {
+				msg := val[i]
+				print("\n\n\n")
+				print("Printing logs-----------------------------------------------------------------------------\n")
+				{
+					ids := strings.Split(msg.ID, "-")
+					timestamp := ids[0]
+					i, err := strconv.ParseInt(timestamp, 10, 64)
+					if err != nil {
+
+					}
+					print(time.Unix(0, i*1000000).String())
+				}
+				ids = append(ids, msg.ID)
+
+				for k, v := range msg.Values {
+					print("\n")
+					fmt.Printf("|%s\t\t|%v", k, v)
+				}
+
+			}
+			print("\n\n\n")
+			if len(ids) == 0 {
+				print("no logs... \n")
+			}
 		}
 
 	}
