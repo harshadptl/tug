@@ -36,7 +36,7 @@ func (t *Tug) Pause(vars ...interface{}) {
 
 	xa := &redis.XAddArgs{
 		Stream: "tug",
-		ID:	id,
+		ID:	"*",
 		Values: map[string]interface{}{},
 	}
 
@@ -68,7 +68,7 @@ func (t *Tug) Print(vars ...interface{}) {
 
 	xa := &redis.XAddArgs{
 		Stream: "tug",
-		ID:	id,
+		ID:	"*",
 		Values: map[string]interface{}{},
 	}
 
