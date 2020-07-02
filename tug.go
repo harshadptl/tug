@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v7"
 	"reflect"
-	"time"
 )
 
 const (
@@ -32,7 +31,6 @@ func NewTug(name, host, password string) *Tug {
 
 func (t *Tug) Pause(vars ...interface{}) {
 
-	id := fmt.Sprintf("%s:%s", t.name, time.Now().String())
 
 	xa := &redis.XAddArgs{
 		Stream: "tug",
@@ -63,8 +61,6 @@ func (t *Tug) Pause(vars ...interface{}) {
 }
 
 func (t *Tug) Print(vars ...interface{}) {
-
-	id := fmt.Sprintf("%s:%s", t.name, time.Now().String())
 
 	xa := &redis.XAddArgs{
 		Stream: "tug",
